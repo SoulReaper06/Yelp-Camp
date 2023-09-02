@@ -1,8 +1,6 @@
-// if(process.env.NODE_ENV !== "production"){
-//     require('dotenv').config()
-// }
-
-require('dotenv').config()
+if(process.env.NODE_ENV !== "production"){
+    require('dotenv').config()
+}
 
 const express = require('express');
 const path = require('path');
@@ -26,9 +24,8 @@ const reviewRoutes = require('./routes/review');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet')
 
-const dbUrl = process.env.DB_URL
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/yelp-camp'
 mongoose.set('strictQuery', true);
-// 'mongodb://127.0.0.1:27017/yelp-camp'
 mongoose.connect(dbUrl);
 
 
@@ -58,7 +55,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true}));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(mongoSanitize());
+	app.use(mongoSanitize({	
+    replaceWith: '_'	
+}))
 
 const sessionConfig = {
     store,
@@ -70,7 +69,7 @@ const sessionConfig = {
         httpOnly: true,
         secure: true,
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
-        maxAge: 1000 * 60 * 60 * 24 * 7 
+        maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
 
